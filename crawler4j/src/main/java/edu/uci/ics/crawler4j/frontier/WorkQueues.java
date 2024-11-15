@@ -122,7 +122,18 @@ public class WorkQueues {
      */
     protected static DatabaseEntry getDatabaseEntryKey(WebURL url) {
         byte[] keyData = new byte[6];
-        keyData[0] = url.getPriority();
+        byte priority = url.getPriority();
+        if (priority < 0) {
+            throw new IllegalArgumentException("Priority must be non-negative");
+        }
+        keyData[0] = priority;
+
+        // second option-- use this function 
+        // protected static int unsignedByteToInt(byte b) {
+        //     return b & 0xFF; // Converts signed byte to unsigned int
+        // }
+        // int priority = unsignedByteToInt(keyData[0]);
+
         keyData[1] = ((url.getDepth() > Byte.MAX_VALUE) ? Byte.MAX_VALUE : (byte) url.getDepth());
         Util.putIntInByteArray(url.getDocid(), keyData, 2);
         return new DatabaseEntry(keyData);
